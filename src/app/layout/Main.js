@@ -1,110 +1,79 @@
-/**
- * In this file, we create a React component
- * which incorporates components provided by Material-UI.
- */
-import React, {Component} from 'react';
-import RaisedButton from 'material-ui/RaisedButton';
-import Dialog from 'material-ui/Dialog';
-import {deepOrange500} from 'material-ui/styles/colors';
-import FlatButton from 'material-ui/FlatButton';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import {AppBar, BottomNavigation, BottomNavigationItem, FontIcon, Paper} from "material-ui";
-import Drawer from 'material-ui/Drawer';
-import MenuItem from 'material-ui/MenuItem';
-import IconLocationOn from 'material-ui/svg-icons/communication/location-on';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { withStyles } from 'material-ui/styles';
+import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
+import purple from 'material-ui/colors/purple';
+import green from 'material-ui/colors/green';
+import moment from 'moment';
+import Navigation from './Navigation';
+import Header from './Header';
 
-const styles = {
-  container: {
-    // textAlign: 'center',
-    // paddingTop: 200,
-  },
-  paper: {
-      margin: '2vw',
-      padding: '1em',
-      textAlign: 'center',
-      display: 'inline-block',
-  }
-};
-
-const muiTheme = getMuiTheme({
-  palette: {
-    accent1Color: deepOrange500,
-  },
+const styles = theme => ({
+    container: {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'stretch'
+    },
+    header: {},
+    content: {
+        width: 'calc(100% - 48px)',
+        height: 'calc(100% - 168px)',
+        padding: '24px'
+    },
+    footer: {
+        position: 'fixed',
+        bottom: 0,
+        width: '100%'
+    }
 });
 
-const pageTabs = [
-    {
-      key: '0',
-      label: 'Weather',
-      icon: <FontIcon className="material-icons">wb_sunny</FontIcon>
-    }, {
-      key: '1',
-      label: 'Statistics',
-      icon: <FontIcon className="material-icons">assessment</FontIcon>
-    }, {
-      key: '2',
-      label: 'Camera',
-      icon: <FontIcon className="material-icons">videocam</FontIcon>
-    }, {
-      key: '3',
-      label: 'Map',
-      icon: <FontIcon className="material-icons">terrain</FontIcon>
-    }
-];
+const theme = createMuiTheme({
+    palette: {
+        primary: {
+            light: purple[300],
+            main: purple[500],
+            dark: purple[700],
+        },
+        secondary: {
+            light: green[300],
+            main: green[500],
+            dark: green[700],
+        },
+    },
+});
 
-
-class Main extends Component {
-  constructor(props, context) {
-    super(props, context);
-
-    this.state = {
-      drawerOpen: false,
-      selectedIndex: 0
-    };
-  }
-
-  handleTouchTap = () => {
-    this.setState({
-      open: true,
-    });
-  };
-
-  handleToggle = () => this.setState({drawerOpen: !this.state.open});
-
-  handleClose = () => this.setState({drawerOpen: false});
-
-  render() {
-    return (
-      <MuiThemeProvider muiTheme={muiTheme}>
-        <div style={styles.container}>
-          <div className="layoutHeader" >
-            <AppBar
-                showMenuIconButton={false}
-                title={"х. Червената шапчица"}
-                onLeftIconButtonClick={this.handleToggle}
-            />
-          </div>
-          <div className="layoutContent">
-            <Paper style={Object.assign({}, styles.paper, {fontSize: '50pt', backgroundColor: 'lightgreen'})}>
-              26&deg;
-            </Paper>
-            <Paper style={Object.assign({}, styles.paper, {fontSize: '50pt', backgroundColor: 'lightblue'})}>
-              44%
-            </Paper>
-          </div>
-          <div className="layoutFooter" style={{position: 'fixed', bottom: 0, width: '100%'}}>
-            <BottomNavigation selectedIndex={this.state.selectedIndex}>
-              {pageTabs.map(function(tab) { return <BottomNavigationItem
-                  {...tab}
-                  onClick={() => this.openPage(tab.key)}
-              />; })}
-            </BottomNavigation>
-          </div>
-        </div>
-      </MuiThemeProvider>
-    );
-  }
+// Expose the theme as a global variable so people can play with it.
+if (process.browser) {
+    window.theme = theme;
 }
 
-export default Main;
+function Main(props) {
+  const { classes, children } = props;
+
+  return (
+      <MuiThemeProvider theme={theme}>
+          <div className={classes.container}>
+              <div className={classes.header}>
+                  <Header title="х. Червената шапчица" time={moment().format('')}/>
+              </div>
+              <div className={classes.content}>
+                  {children}
+              </div>
+              <div className={classes.footer}>
+                  <Navigation/>
+              </div>
+          </div>
+      </MuiThemeProvider>
+  );
+}
+
+Main.propTypes = {
+    classes: PropTypes.object.isRequired,
+};
+
+export default withStyles(styles)(Main);
